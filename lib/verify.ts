@@ -12,11 +12,10 @@ export function keyTerms(claim: string): string[] {
 }
 
 /**
- * "Hard" tokens are SPECIFIC evidence a passage must echo to confirm a claim,
- * beyond mere term overlap: numbers/dates/money/percentages, and ALL-CAPS
- * acronyms (NIF, GPT). Title-case words (The, National) are deliberately NOT
- * hard tokens — they overlap with key terms and give no independent confirmation,
- * so a claim with no number/date/acronym honestly tops out at NEEDS_CONTEXT.
+ * "Hard" tokens are SPECIFIC evidence a passage must echo to confirm a claim:
+ * numbers/dates/money/percentages and ALL-CAPS acronyms (NIF, GPT). Title-case
+ * words overlap with key terms and give no independent confirmation, so a claim
+ * with no number/date/acronym honestly tops out at NEEDS_CONTEXT.
  */
 export function hardTokens(claim: string): string[] {
   const tokens: string[] = [];
@@ -38,4 +37,22 @@ export function verifyClaim({ claim, passage }: { claim: string; passage: string
   if (coverage >= 0.6 && matchedHardToken) return { verdict: 'VERIFIED', matchedTerms, matchedHardToken };
   if (coverage >= 0.6 || (matchedHardToken && coverage >= 0.3)) return { verdict: 'NEEDS_CONTEXT', matchedTerms, matchedHardToken };
   return { verdict: 'UNSUPPORTED', matchedTerms };
+}
+
+/** Pick the single most claim-relevant sentence from a read's full text, for display. */
+export function bestSnippet(text: string, claim: string, maxLen = 280): string | undefined {
+  if (!text) return undefined;
+  const terms = keyTerms(claim);
+  const hards = hardTokens(claim);
+  const sentences = text.replace(/\s+/g, ' ').split(/(?<=[.!?])\s+/).map((s) => s.trim()).filter((s) => s.length > 20);
+  let best = '';
+  let bestScore = 0;
+  for (const s of sentences) {
+    const lc = s.toLowerCase();
+    let score = terms.filter((t) => lc.includes(t)).length;
+    if (hards.some((h) => lc.includes(h.toLowerCase()))) score += 3;
+    if (score > bestScore) { bestScore = score; best = s; }
+  }
+  if (bestScore === 0) return undefined;
+  return best.length > maxLen ? best.slice(0, maxLen).replace(/\s+\S*$/, '') + '…' : best;
 }

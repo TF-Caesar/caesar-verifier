@@ -16,7 +16,7 @@ export interface ReadPassage { passageId?: string; text: string; }
 export interface ReadResult { docId?: string; canonicalUrl?: string; text: string; passages: ReadPassage[]; captureId?: string; captureTime?: string; }
 export interface Citation {
   rank: number; title: string; canonicalUrl: string; docId: string;
-  passageId?: string; captureId?: string; captureTime?: string; passage?: string;
+  passageId?: string; captureId?: string; captureTime?: string; passage?: string; text?: string;
 }
 export interface SearchAndReadResult { evidence: string; citations: Citation[]; searchId?: string; }
 
@@ -101,7 +101,7 @@ export class CaesarClient {
       const passage = doc?.passages?.[0];
       citations.push({
         rank: r.rank, title: r.title, canonicalUrl: r.canonicalUrl, docId: r.docId,
-        passageId: passage?.passageId, captureId: doc?.captureId, captureTime: doc?.captureTime, passage: passage?.text,
+        passageId: passage?.passageId, captureId: doc?.captureId, captureTime: doc?.captureTime, passage: passage?.text, text: doc?.text,
       });
       const body = doc?.text && doc.text.length > 200
         ? doc.text
