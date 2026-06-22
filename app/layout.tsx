@@ -1,0 +1,22 @@
+import './globals.css';
+import type { ReactNode } from 'react';
+import type { Metadata } from 'next';
+import { Geist, Geist_Mono } from 'next/font/google';
+
+const geist = Geist({ subsets: ['latin'], weight: ['400', '500', '600'], variable: '--font-geist', display: 'swap' });
+const geistMono = Geist_Mono({ subsets: ['latin'], weight: ['400', '500'], variable: '--font-geist-mono', display: 'swap' });
+
+export const metadata: Metadata = {
+  title: 'Caesar Verifier — cited, with timestamps',
+  description:
+    'Check any claim against live sources and see the exact captured passage and the moment it was captured. Free, no signup. Powered by Caesar search.',
+  icons: { icon: [{ url: '/favicon.svg', type: 'image/svg+xml' }] },
+};
+
+export default function RootLayout({ children }: { children: ReactNode }) {
+  return (
+    <html lang="en" className={`${geist.variable} ${geistMono.variable}`}>
+      <body className="min-h-screen bg-canvas font-body text-ink antialiased">{children}</body>
+    </html>
+  );
+}
