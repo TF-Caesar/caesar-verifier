@@ -39,15 +39,30 @@ export function verifyClaim({ claim, passage }: { claim: string; passage: string
   return { verdict: 'UNSUPPORTED', matchedTerms };
 }
 
-/** Pick the single most claim-relevant sentence from a read's full text, for display. */
+/** Strip common markdown noise from a candidate sentence so the quote reads clean. */
+export function cleanMarkdown(s: string): string {
+  return s
+    .replace(/!?\[([^\]]*)\]\([^)]*\)/g, '$1') // images/links -> text
+    .replace(/[*_`~]+/g, '')                   // bold/italic/code/strike marks
+    .replace(/^\s*#{1,6}\s*/, '')              // leading heading hashes
+    .replace(/^\s*>+\s*/, '')                  // blockquote marker
+    .replace(/^\s*[-*+]\s+/, '')               // list bullet
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+/** Pick the single most claim-relevant sentence from a read's full text, cleaned for display. */
 export function bestSnippet(text: string, claim: string, maxLen = 280): string | undefined {
   if (!text) return undefined;
   const terms = keyTerms(claim);
   const hards = hardTokens(claim);
-  const sentences = text.replace(/\s+/g, ' ').split(/(?<=[.!?])\s+/).map((s) => s.trim()).filter((s) => s.length > 20);
+  const candidates = text
+    .split(/\n+|(?<=[.!?])\s+/) // split on line breaks AND sentence ends (markdown headings have no period)
+    .map(cleanMarkdown)
+    .filter((s) => s.length > 25);
   let best = '';
   let bestScore = 0;
-  for (const s of sentences) {
+  for (const s of candidates) {
     const lc = s.toLowerCase();
     let score = terms.filter((t) => lc.includes(t)).length;
     if (hards.some((h) => lc.includes(h.toLowerCase()))) score += 3;
