@@ -11,6 +11,9 @@ Most "fact check" tools ask a model what it remembers. This one **reads live sou
 - **VERIFIED** — the claim's terms and a hard token (a number, date, or acronym) appear in a captured passage.
 - **NEEDS CONTEXT** — the source discusses the same thing, but the specific figure isn't there.
 - **UNSUPPORTED** — the source was read, and it doesn't back the claim.
+- **OPINION** — the claim is subjective or comparative ("X is better than Y"), so it isn't a checkable fact; the closest source is shown as related reading.
+
+Paste a bare URL and it reads the page first, then checks the claims it finds there.
 
 ## Run it locally (zero setup)
 
